@@ -8,4 +8,6 @@ edition = "2021"
 [workspace]
 
 [dependencies]
-server = {path = "server"}
+db_interface = {path = "db_interface" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

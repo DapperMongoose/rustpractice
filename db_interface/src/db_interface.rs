@@ -2,7 +2,6 @@ use std::error::Error;
 use std::fmt;
 
 const READ_QUERY: &str = "SELECT * FROM COUNTER;";
-const UPDATE_DB_QUERY: &str ="UPDATE COUNTER SET count = ?;";
 
 #[derive(Debug)]
 pub struct DBError {
@@ -45,18 +44,30 @@ pub fn read_db() ->  Result<i64, DBError> {
     Ok(result[0])
     }
 
+pub fn increment() -> Result<(), DBError>{
+    let connection: sqlite::Connection = sqlite::open("db.sq3").unwrap();
+    let mut current = read_db().unwrap();
+    current += 1;
+    let query = format!("UPDATE COUNTER SET count = {current};");
+    connection.execute(query).unwrap();
+    Ok(())
+}
 
-// pub fn add(left: usize, right: usize) -> usize {
-//     left + right
-// }
-//
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//
-//     #[test]
-//     fn it_works() {
-//         let result = add(2, 2);
-//         assert_eq!(result, 4);
-//     }
-// }
+pub fn decrement() -> Result<(), DBError> {
+    let connection: sqlite::Connection = sqlite::open("db.sq3").unwrap();
+    let mut current = read_db().unwrap();
+    // Don't let the count be negative, just because.
+    if current > 0{
+        current -= 1;
+        let query = format!("UPDATE COUNTER SET count = {current};");
+        connection.execute(query).unwrap();
+    }
+    Ok(())
+}
+
+pub fn reset() -> Result<(), DBError> {
+    let connection: sqlite::Connection = sqlite::open("db.sq3").unwrap();
+    let query = format!("UPDATE COUNTER SET count = 0;");
+    connection.execute(query).unwrap();
+    Ok(())
+}
